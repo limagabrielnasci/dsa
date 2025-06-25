@@ -1,117 +1,112 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Nodo {
-    int conteudo;
-    struct Nodo *prox; // ponteiro pro próximo elemento
-} Nodo;
+typedef struct Node {
+    int value;
+    struct Node *next; // ponteiro pro próximo elemento
+} Node;
 
-// variaveis ponteiros globais que guardam referência
+// variáveis ponteiros globais que guardam referência
 // para a cabeça da lista e o nó corrente
 // cabeça da lista encadeada (começa com NULL)
-Nodo *cabeca = NULL;
-Nodo *corrente = NULL;
+Node *head = NULL;
+Node *current = NULL;
 
-Nodo *criar_lista(int valor) {
-
+Node *create_list(int value) {
     // aloca espaço em memória
-    Nodo *p = (Nodo *)malloc(sizeof(Nodo));
+    Node *p = (Node *)malloc(sizeof(Node));
 
     if (!p) {
-        printf("\nFalha ao alocar memória\n");
+        printf("\nMemory allocation failed\n");
         return NULL;
     }
 
-    p->conteudo = valor; // atribui o valor
-    p->prox = NULL; // o próximo é NULL
+    p->value = value; // atribui o valor
+    p->next = NULL;   // o próximo é NULL
 
     // faz a cabeça e o corrente apontar pra p
-    cabeca = corrente = p;
+    head = current = p;
 
     // retorna o ponteiro alocado
     return p;
 }
 
-Nodo *adicionar_lista(int valor) {
-
-    // verifica se a cabeca eh NULL (lista vazia)
-    if (cabeca == NULL) {
-        return criar_lista(valor);
+Node *add_to_list(int value) {
+    // verifica se a cabeça é NULL (lista vazia)
+    if (head == NULL) {
+        return create_list(value);
     }
 
-    Nodo *p = (Nodo *)malloc(sizeof(Nodo));
+    Node *p = (Node *)malloc(sizeof(Node));
 
     if (!p) {
-        printf("\nFalha ao alocar memória\n");
+        printf("\nMemory allocation failed\n");
         return NULL;
     }
 
-    p->conteudo = valor;
-    p->prox = NULL;
+    p->value = value;
+    p->next = NULL;
 
     // para inserção no final, fazemos com que o próximo do nó
     // corrente aponte para p
-    corrente->prox = p;
+    current->next = p;
 
     // corrente passa a ser p
-    corrente = p;
+    current = p;
 
     // retorna o ponteiro alocado
     return p;
 }
 
-void imprimir_lista() {
-    // variavel ponteiero "aux" para percorrer a lista
-    // inicialmente aponta para "cabeca"
-    Nodo *aux = cabeca;
+void print_list() {
+    // variável ponteiro "aux" para percorrer a lista
+    // inicialmente aponta para "head"
+    Node *aux = head;
 
     while (aux != NULL) {
         // imprime o conteúdo
-        printf("%d\n", aux->conteudo);
+        printf("%d\n", aux->value);
 
         // aponta pro próximo nó da lista
-        aux = aux->prox;
+        aux = aux->next;
     }
 }
 
 // função para verificar se a lista está vazia
 // retorna 1 se estiver vazia e 0 caso contrário
-int lista_vazia() {
-    if (cabeca == NULL) {
-        return 1;
-    }
-    return 0;
+int is_list_empty() {
+    return head == NULL;
 }
 
-// recebe o valor a ser busca e um ponteiro para ant
+// recebe o valor a ser buscado e um ponteiro para ant
 // que servirá para guardar o anterior do elemento encontrado
-Nodo *buscar_elemento(int valor, Nodo **anterior) {
-    if (lista_vazia() == 1) {
+Node *find_element(int value, Node **previous) {
+    if (is_list_empty()) {
         return NULL;
     }
 
-    // variavel "p" para percorrer a lista
-    Nodo *p = cabeca;
-    // variavel "aux_ant" para guardar o anterior
-    Nodo *aux_ant = NULL;
-    // flag "achou" que indica se achou o elemento
-    int achou = 0;
+    // variável "p" para percorrer a lista
+    Node *p = head;
+    // variável "aux_prev" para guardar o anterior
+    Node *aux_prev = NULL;
+    // flag "found" que indica se achou o elemento
+    int found = 0;
 
     while (p != NULL) {
-        if (p->conteudo == valor) {
-            achou = 1;
+        if (p->value == value) {
+            found = 1;
             break;
         }
-        // atualiza o "aux_ant"
-        aux_ant = p;
+        // atualiza o "aux_prev"
+        aux_prev = p;
         // aponta para o próximo
-        p = p->prox;
+        p = p->next;
     }
 
-    if (achou == 1) {
-        // se "ant" for diferente de NULL
-        if (anterior) {
-            *anterior = aux_ant; // guarda "aux_ant"
+    if (found) {
+        // se "previous" for diferente de NULL
+        if (previous) {
+            *previous = aux_prev; // guarda "aux_prev"
         }
         return p;
     }
@@ -120,74 +115,74 @@ Nodo *buscar_elemento(int valor, Nodo **anterior) {
     return NULL;
 }
 
-int remover_elemento(int valor) {
-    // variavel que guarda a referência para o nó anterior
+int remove_element(int value) {
+    // variável que guarda a referência para o nó anterior
     // do elemento que vai ser removido
-    Nodo *anterior = NULL;
+    Node *previous = NULL;
 
     // busca pelo elemento a ser removido
-    // passa a referencia para o "anterior"
+    // passa a referência para o "previous"
     // elem é o elemento que será removido
-    Nodo *elem = buscar_elemento(valor, &anterior);
+    Node *elem = find_element(value, &previous);
 
     if (elem == NULL) {
         return 0;
     }
 
-    if (anterior != NULL) {
-        anterior->prox = elem->prox;
+    if (previous != NULL) {
+        previous->next = elem->next;
     }
 
-    if (elem == corrente) {
-        corrente = anterior;
+    if (elem == current) {
+        current = previous;
     }
 
-    if (elem == cabeca) {
-        cabeca = elem->prox;
+    if (elem == head) {
+        head = elem->next;
     }
 
     free(elem);
-    elem = NULL;
     return 1;
 }
 
 int main() {
-    if (lista_vazia() == 0) {
-        printf("A lista não está vazia\n\n");
+    if (!is_list_empty()) {
+        printf("The list is not empty\n\n");
     } else {
-        printf("Lista vazia\n\n");
+        printf("The list is empty\n\n");
     }
 
-    printf("Criando uma lista...\n\n");
-    criar_lista(10);
+    printf("Creating a list...\n\n");
+    create_list(10);
 
-    printf("Adicionando nós na lista...\n\n");
-    adicionar_lista(20);
-    adicionar_lista(30);
-    adicionar_lista(40);
-    adicionar_lista(50);
+    printf("Adding nodes to the list...\n\n");
+    add_to_list(20);
+    add_to_list(30);
+    add_to_list(40);
+    add_to_list(50);
 
-    printf("Imprimindo os nós da lista:\n");
-    imprimir_lista();
+    printf("Printing the nodes in the list:\n");
+    print_list();
 
-    if (buscar_elemento(10, NULL) != NULL) {
-        printf("\nElemento 10 encontrado!\n");
+    if (find_element(10, NULL)) {
+        printf("\nElement 10 found!\n");
     } else {
-        printf("\nElemento 10 não encontrado\n");
-    }
-    if (buscar_elemento(100, NULL) != NULL) {
-        printf("\nElemento 100 encontrado!\n");
-    } else {
-        printf("\nElemento 100 não encontrado\n");
+        printf("\nElement 10 not found\n");
     }
 
-    if (remover_elemento(30)) {
-        printf("\nElemento 30 removido com sucesso!\n");
+    if (find_element(100, NULL)) {
+        printf("\nElement 100 found!\n");
     } else {
-        printf("Não foi possível remover o elemento 30\n");
+        printf("\nElement 100 not found\n");
     }
 
-    imprimir_lista();
+    if (remove_element(30)) {
+        printf("\nElement 30 successfully removed!\n");
+    } else {
+        printf("Failed to remove element 30\n");
+    }
+
+    print_list();
 
     return 0;
 }

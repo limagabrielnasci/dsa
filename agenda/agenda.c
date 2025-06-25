@@ -2,118 +2,122 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TAM_NOME     20
-#define TAM_IDADE    3
-#define TAM_EMAIL    31
-#define TAM_REGISTRO (TAM_NOME + TAM_IDADE + TAM_EMAIL)
-#define TAM_TEMP     TAM_NOME
+#define NAME_SIZE     20
+#define AGE_SIZE      3
+#define EMAIL_SIZE    31
+#define RECORD_SIZE   (NAME_SIZE + AGE_SIZE + EMAIL_SIZE)
+#define TEMP_SIZE     NAME_SIZE
 
-void menu(void *pBuffer) {
-    printf("\n1 - Adicionar Pessoa (Nome, Idade, Email)\n");
-    printf("2 - Remover Pessoa\n");
-    printf("3 - Buscar Pessoa\n");
-    printf("4 - Listar Todos\n");
-    printf("5 - Sair\n");
-    printf("Escolha: ");
+void showMenu(void *pBuffer) {
+    printf("\n1 - Add Person (Name, Age, Email)\n");
+    printf("2 - Remove Person\n");
+    printf("3 - Search Person\n");
+    printf("4 - List All\n");
+    printf("5 - Exit\n");
+    printf("Choice: ");
     scanf("%d", (int *)pBuffer);
     getchar();
 }
 
-void adicionar(void **pBuffer) {
+void addPerson(void **pBuffer) {
     *((int *)(*pBuffer) + 1) += 1;
-    *pBuffer = realloc(*pBuffer, sizeof(int) * 2 + TAM_TEMP + (*((int *)(*pBuffer) + 1)) * TAM_REGISTRO);
+
+    *pBuffer = realloc(*pBuffer, sizeof(int) * 2 + TEMP_SIZE + (*((int *)(*pBuffer) + 1)) * RECORD_SIZE);
     if (!*pBuffer) exit(1);
 
-    char *novo = ((char *)((int *)(*pBuffer) + 2)) + TAM_TEMP + ((*((int *)(*pBuffer) + 1) - 1) * TAM_REGISTRO);
+    char *newRecord = ((char *)((int *)(*pBuffer) + 2)) + TEMP_SIZE + ((*((int *)(*pBuffer) + 1) - 1) * RECORD_SIZE);
 
-    printf("Nome: ");
-    scanf("%19[^\n]%*c", novo);
-    printf("Idade: ");
-    scanf("%2s%*c", novo + TAM_NOME);
+    printf("Name: ");
+    scanf("%19[^\n]%*c", newRecord);
+    printf("Age: ");
+    scanf("%2s%*c", newRecord + NAME_SIZE);
     printf("Email: ");
-    scanf("%30s%*c", novo + TAM_NOME + TAM_IDADE);
+    scanf("%30s%*c", newRecord + NAME_SIZE + AGE_SIZE);
 }
 
-void remover(void **pBuffer) {
-    printf("Nome da pessoa pra remover: ");
+void removePerson(void **pBuffer) {
+    printf("Enter name to remove: ");
     scanf("%19[^\n]%*c", (char *)((int *)(*pBuffer) + 2));
 
-    char *base = ((char *)((int *)(*pBuffer) + 2)) + TAM_TEMP;
+    char *dataStart = ((char *)((int *)(*pBuffer) + 2)) + TEMP_SIZE;
     int total = *((int *)(*pBuffer) + 1);
-    char *p = base;
-    char *fim = base + total * TAM_REGISTRO;
+    char *ptr = dataStart;
+    char *end = dataStart + total * RECORD_SIZE;
 
-    while (p < fim) {
-        if (strcmp(p, (char *)((int *)(*pBuffer) + 2)) == 0) {
-            if (p != fim - TAM_REGISTRO) {
-                memcpy(p, fim - TAM_REGISTRO, TAM_REGISTRO);
+    while (ptr < end) {
+        if (strcmp(ptr, (char *)((int *)(*pBuffer) + 2)) == 0) {
+            if (ptr != end - RECORD_SIZE) {
+                memcpy(ptr, end - RECORD_SIZE, RECORD_SIZE);
             }
             *((int *)(*pBuffer) + 1) -= 1;
-            *pBuffer = realloc(*pBuffer, sizeof(int) * 2 + TAM_TEMP + (*((int *)(*pBuffer) + 1)) * TAM_REGISTRO);
+
+            *pBuffer = realloc(*pBuffer, sizeof(int) * 2 + TEMP_SIZE + (*((int *)(*pBuffer) + 1)) * RECORD_SIZE);
             if (!*pBuffer) exit(1);
-            printf("Removido.\n");
+
+            printf("Person removed.\n");
             return;
         }
-        p += TAM_REGISTRO;
+        ptr += RECORD_SIZE;
     }
 
-    printf("Pessoa não encontrada.\n");
+    printf("Person not found.\n");
 }
 
-void buscar(void *pBuffer) {
-    printf("Nome para buscar: ");
+void searchPerson(void *pBuffer) {
+    printf("Enter name to search: ");
     scanf("%19[^\n]%*c", (char *)((int *)pBuffer + 2));
 
-    char *base = ((char *)((int *)pBuffer + 2)) + TAM_TEMP;
+    char *dataStart = ((char *)((int *)pBuffer + 2)) + TEMP_SIZE;
     int total = *((int *)pBuffer + 1);
-    char *p = base;
-    char *fim = base + total * TAM_REGISTRO;
+    char *ptr = dataStart;
+    char *end = dataStart + total * RECORD_SIZE;
 
-    while (p < fim) {
-        if (strcmp(p, (char *)((int *)pBuffer + 2)) == 0) {
-            printf("\nNome: %s\nIdade: %s\nEmail: %s\n", p, p + TAM_NOME, p + TAM_NOME + TAM_IDADE);
+    while (ptr < end) {
+        if (strcmp(ptr, (char *)((int *)pBuffer + 2)) == 0) {
+            printf("\nName: %s\nAge: %s\nEmail: %s\n", ptr, ptr + NAME_SIZE, ptr + NAME_SIZE + AGE_SIZE);
             return;
         }
-        p += TAM_REGISTRO;
+        ptr += RECORD_SIZE;
     }
 
-    printf("Pessoa não encontrada.\n");
+    printf("Person not found.\n");
 }
 
-void listar(void *pBuffer) {
+void listPeople(void *pBuffer) {
     int total = *((int *)pBuffer + 1);
     if (total == 0) {
-        printf("Nenhuma pessoa.\n");
+        printf("No people in list.\n");
         return;
     }
 
-    char *base = ((char *)((int *)pBuffer + 2)) + TAM_TEMP;
-    char *p = base;
-    char *fim = base + total * TAM_REGISTRO;
+    char *dataStart = ((char *)((int *)pBuffer + 2)) + TEMP_SIZE;
+    char *ptr = dataStart;
+    char *end = dataStart + total * RECORD_SIZE;
 
-    while (p < fim) {
-        printf("\nNome: %s\nIdade: %s\nEmail: %s\n", p, p + TAM_NOME, p + TAM_NOME + TAM_IDADE);
-        p += TAM_REGISTRO;
+    while (ptr < end) {
+        printf("\nName: %s\nAge: %s\nEmail: %s\n", ptr, ptr + NAME_SIZE, ptr + NAME_SIZE + AGE_SIZE);
+        ptr += RECORD_SIZE;
     }
 }
 
 int main() {
-    void *pBuffer = calloc(1, sizeof(int) * 2 + TAM_TEMP);
+    void *pBuffer = calloc(1, sizeof(int) * 2 + TEMP_SIZE);
     if (!pBuffer) return 1;
 
     *((int *)pBuffer + 1) = 0;
 
     while (1) {
-        menu(pBuffer);
-        if (*((int *)pBuffer) == 1) {
-            adicionar(&pBuffer);
-        } else if (*((int *)pBuffer) == 2) {
-            remover(&pBuffer);
-        } else if (*((int *)pBuffer) == 3) {
-            buscar(pBuffer);
-        } else if (*((int *)pBuffer) == 4) {
-            listar(pBuffer);
-        } else if (*((int *)pBuffer) == 5) {
+        showMenu(pBuffer);
+        int option = *((int *)pBuffer);
+        if (option == 1) {
+            addPerson(&pBuffer);
+        } else if (option == 2) {
+            removePerson(&pBuffer);
+        } else if (option == 3) {
+            searchPerson(pBuffer);
+        } else if (option == 4) {
+            listPeople(pBuffer);
+        } else if (option == 5) {
             break;
         }
     }

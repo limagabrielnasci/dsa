@@ -12,44 +12,42 @@ ETSE OIC´ICREXE E OTIUM LIC ´ AF
 #define MAX 100
 
 typedef struct {
-    char item[MAX];
+    char items[MAX];
     int top;
 } Stack;
 
 void push(Stack *s, char c) {
     if (s->top < MAX - 1) {
-        s->item[++(s->top)] = c;
+        s->items[++(s->top)] = c;
     }
 }
 
 char pop(Stack *s) {
     if (s->top >= 0) {
-        return s->item[(s->top)--];
+        return s->items[(s->top)--];
     }
     return '\0';
 }
 
-void reverseWords(char *s) {
+void reverseWords(char *str) {
     Stack stack;
     stack.top = -1;
 
-    for (int i = 0; s[i] != '\0'; i++) {
-        if (s[i] != ' ' && s[i] != '.') {
-            push(&stack, s[i]);
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] != ' ' && str[i] != '.') {
+            push(&stack, str[i]);
         } else {
             while (stack.top != -1) {
                 putchar(pop(&stack));
             }
-            if (s[i] == ' ' || s[i] == '.') {
-                putchar(s[i]);
-            }
+            putchar(str[i]);
         }
     }
     putchar('\n');
 }
 
 int main() {
-    char texto[] = "GABRIEL EH FELIZ.";
-    reverseWords(texto);
+    char text[] = "GABRIEL IS HAPPY.";
+    reverseWords(text);
     return 0;
 }
