@@ -1,4 +1,4 @@
-# Longest Happy String
+# Balance a Binary Search Tree
 
 Name: Gabriel Lima Nascimento
 
